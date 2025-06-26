@@ -1,0 +1,37 @@
+* pdf-replacer
+
+一个使用 Clojure 构建的简单工具，用于在 PDF 文档中替换文本。支持中文和英文等任意文本，只需提供能够显示相应字符的字体文件即可。
+
+** 项目初始化
+
+使用 `deps.edn` 管理依赖。核心依赖包括 `org.apache.pdfbox/pdfbox` 用于解析和生成 PDF。
+
+运行示例:
+
+#+begin_src shell
+  clojure -M:run input.pdf output.pdf "旧文本" "新文本"
+#+end_src
+
+命令参数依次为输入文件、输出文件以及成对出现的待替换字符串。
+
+** 字体支持
+
+项目需要一个外部 TTF/OTF 字体文件。可在 `config.edn` 中设置 `:font-path`，或通过环境变量 `PDF_REPLACER_FONT_PATH` 指定路径。也可以在调用 `replace-text` 时传入 `:font-path` 选项:
+
+#+begin_src clojure
+(pdf-replacer.core/replace-text "in.pdf" "out.pdf" {"旧" "新"} :font-path "NotoSansCJKsc-Regular.otf")
+#+end_src
+
+`config.edn` 示例:
+
+#+begin_src clojure
+{:font-path "/path/to/DejaVuSans.ttf"}
+#+end_src
+
+** 开发与运行
+
+#+begin_src shell
+  clojure -M:run src/test.pdf target/result.pdf "foo" "bar"
+#+end_src
+
+替换完成的文件将写入第二个参数指定的位置。
