@@ -1,0 +1,54 @@
+* pdf-replacer
+
+一个使用 Clojure 构建的简单工具，用于在 PDF 文档中替换文本。支持中文和英文等任意文本，只需提供能够显示相应字符的字体文件即可。
+
+** 项目初始化
+
+使用 `deps.edn` 管理依赖。核心依赖包括 `org.apache.pdfbox/pdfbox` 用于解析和生成 PDF。
+
+测试时可使用 `clj-pdf` 生成示例文档:
+
+#+begin_src shell
+  clojure -M:gen sample.pdf
+#+end_src
+
+生成后即可对其进行替换操作。
+
+运行示例:
+
+#+begin_src shell
+  clojure -M:run input.pdf output.pdf "旧文本" "新文本"
+#+end_src
+
+命令参数依次为输入文件、输出文件以及成对出现的待替换字符串。
+
+** 字体支持
+
+项目需要一个外部 TTF/OTF 字体文件。可在 `config.edn` 中设置 `:font-path`，或通过环境变量 `PDF_REPLACER_FONT_PATH` 指定路径。也可以在调用 `replace-text` 时传入 `:font-path` 选项:
+
+#+begin_src clojure
+(pdf-replacer.core/replace-text "in.pdf" "out.pdf" {"旧" "新"} :font-path "NotoSansCJKsc-Regular.otf")
+#+end_src
+
+`config.edn` 示例:
+
+#+begin_src clojure
+{:font-path "/path/to/DejaVuSans.ttf"}
+#+end_src
+
+** 开发与运行
+
+#+begin_src shell
+  clojure -M:run src/test.pdf target/result.pdf "foo" "bar"
+#+end_src
+
+替换完成的文件将写入第二个参数指定的位置。
+
+** 保留原有字体
+
+当前实现通过重新绘制文本生成新的 PDF，因此会统一使用指定的字体。
+如果希望在替换后仍保持原来的字体和排版，需要更底层地解析
+每个页面的内容流（content stream），记录原文字使用的字体
+以及坐标，再分别在相同位置绘制替换后的文本。PDFBox 提供
+`PDFStreamParser` 等 API 可以实现此功能，但本项目默认代码
+未实现该步骤，需要自行扩展。
